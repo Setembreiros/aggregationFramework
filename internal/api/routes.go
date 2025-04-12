@@ -20,7 +20,7 @@ func (api *Api) routes() http.Handler {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	routerGroup := router.Group("/" + api.env + "/followservice")
+	routerGroup := router.Group("/" + api.env + "/aggregationframework")
 
 	for _, controller := range api.controllers {
 		controller.Routes(routerGroup)

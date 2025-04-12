@@ -7,6 +7,8 @@ toolchain go1.23.8
 require (
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.0
+	github.com/go-playground/assert/v2 v2.2.0
+	github.com/golang/mock v1.6.0
 	github.com/rs/zerolog v1.34.0
 )
 

@@ -25,7 +25,7 @@ type App struct {
 func (app *App) Startup() {
 	app.configuringLog()
 
-	log.Info().Msgf("Starting FollowService service in [%s] enviroment...\n", app.Env)
+	log.Info().Msgf("Starting Aggregationframework service in [%s] enviroment...\n", app.Env)
 
 	provider := provider.NewProvider(app.Env)
 	apiEnpoint := provider.ProvideApiEndpoint()
