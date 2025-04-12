@@ -1,9 +1,20 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"os"
+	"strings"
 )
 
 func main() {
-	fmt.Println("Olá, mundo!")
+	ctx, cancel := context.WithCancel(context.Background())
+	env := strings.TrimSpace(os.Getenv("ENVIRONMENT"))
+
+	app := &App{
+		Ctx:    ctx,
+		Cancel: cancel,
+		Env:    env,
+	}
+
+	app.Startup()
 }
