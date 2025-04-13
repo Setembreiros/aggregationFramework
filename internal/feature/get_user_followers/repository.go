@@ -7,7 +7,7 @@ import (
 
 //go:generate mockgen -source=repository.go -destination=test/mock/repository.go
 
-type followerConnector interface {
+type FollowConnector interface {
 	GetUserFollowerIds(username, lastFollowerId string, limit int) ([]string, string, error)
 }
 
@@ -17,14 +17,14 @@ type readmodelsConnector interface {
 
 type GetUserFollowersRepository struct {
 	cache               *database.Cache
-	followerConnector   followerConnector
+	FollowConnector     FollowConnector
 	readmodelsConnector readmodelsConnector
 }
 
-func NewGetUserFollowersRepository(cache *database.Cache, followerConnector followerConnector, readmodelsConnector readmodelsConnector) *GetUserFollowersRepository {
+func NewGetUserFollowersRepository(cache *database.Cache, FollowConnector FollowConnector, readmodelsConnector readmodelsConnector) *GetUserFollowersRepository {
 	return &GetUserFollowersRepository{
 		cache:               cache,
-		followerConnector:   followerConnector,
+		FollowConnector:     FollowConnector,
 		readmodelsConnector: readmodelsConnector,
 	}
 }
@@ -35,7 +35,7 @@ func (r *GetUserFollowersRepository) GetUserFollowers(username string, lastFollo
 		return followers, newLastFollowerId, nil
 	}
 
-	followerIds, newLastFollowerId, err := r.followerConnector.GetUserFollowerIds(username, lastFollowerId, limit)
+	followerIds, newLastFollowerId, err := r.FollowConnector.GetUserFollowerIds(username, lastFollowerId, limit)
 	if err != nil {
 		return []model.Follower{}, "", err
 	}

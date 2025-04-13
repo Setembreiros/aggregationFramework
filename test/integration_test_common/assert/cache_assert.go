@@ -14,3 +14,10 @@ func AssertCachedUserFollowersExists(t *testing.T, db *database.Cache, username,
 	assert.Equal(t, expectedFollowers, cachedFollowers)
 	assert.Equal(t, expectedFollowers[len(expectedFollowers)-1].Username, cachedLastFollowerId)
 }
+
+func AssertCachedUserFolloweesExists(t *testing.T, db *database.Cache, username, lastFolloweeId string, limit int, expectedFollowees []model.Followee) {
+	cachedFollowees, cachedLastFolloweeId, found := db.Client.GetUserFollowees(username, lastFolloweeId, limit)
+	assert.Equal(t, true, found)
+	assert.Equal(t, expectedFollowees, cachedFollowees)
+	assert.Equal(t, expectedFollowees[len(expectedFollowees)-1].Username, cachedLastFolloweeId)
+}

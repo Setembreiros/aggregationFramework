@@ -21,7 +21,7 @@ var cache *database.Cache
 var controller *get_user_followers.GetUserFollowersController
 var apiResponse *httptest.ResponseRecorder
 var ginContext *gin.Context
-var followerConnector *mock_get_user_followers.MockfollowerConnector
+var FollowConnector *mock_get_user_followers.MockFollowConnector
 var readmodelsConnector *mock_get_user_followers.MockreadmodelsConnector
 
 func setUp(t *testing.T) {
@@ -30,12 +30,12 @@ func setUp(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	apiResponse = httptest.NewRecorder()
 	ginContext, _ = gin.CreateTestContext(apiResponse)
-	followerConnector = mock_get_user_followers.NewMockfollowerConnector(ctrl)
+	FollowConnector = mock_get_user_followers.NewMockFollowConnector(ctrl)
 	readmodelsConnector = mock_get_user_followers.NewMockreadmodelsConnector(ctrl)
 
 	// Real infrastructure and services
 	cache = integration_test_arrange.CreateTestCache(t, ginContext)
-	repository := get_user_followers.NewGetUserFollowersRepository(cache, followerConnector, readmodelsConnector)
+	repository := get_user_followers.NewGetUserFollowersRepository(cache, FollowConnector, readmodelsConnector)
 	service := get_user_followers.NewGetUserFollowersService(repository)
 	controller = get_user_followers.NewGetUserFollowersController(service)
 }
@@ -93,7 +93,7 @@ func TestGetUserFollowers_WhenApiConnectorReturnsSuccess(t *testing.T) {
 			"lastFollowerId":"follower7"
 		}
 	}`
-	followerConnector.EXPECT().GetUserFollowerIds(username, lastFollowerId, limit).Return(expectedFollowerIds, expectedLastFollowerId, nil)
+	FollowConnector.EXPECT().GetUserFollowerIds(username, lastFollowerId, limit).Return(expectedFollowerIds, expectedLastFollowerId, nil)
 	readmodelsConnector.EXPECT().GetFollowersMetadata(expectedFollowerIds).Return(expectedFollowers, nil)
 
 	controller.GetUserFollowers(ginContext)

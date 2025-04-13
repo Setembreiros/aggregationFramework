@@ -52,12 +52,12 @@ func (p *Provider) ProvideReadmodelsApiConnector(httpClient *http.Client, contex
 	return api_connector.NewReadmodelsApiConnector(baseURL, httpClient, context)
 }
 
-func (p *Provider) ProvideApiEndpoint(cache *database.Cache, followerConnector *api_connector.FollowerApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) *api.Api {
-	return api.NewApiEndpoint(p.env, p.ProvideApiControllers(cache, followerConnector, readmodelsConnector))
+func (p *Provider) ProvideApiEndpoint(cache *database.Cache, FollowConnector *api_connector.FollowerApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) *api.Api {
+	return api.NewApiEndpoint(p.env, p.ProvideApiControllers(cache, FollowConnector, readmodelsConnector))
 }
 
-func (p *Provider) ProvideApiControllers(cache *database.Cache, followerConnector *api_connector.FollowerApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) []api.Controller {
+func (p *Provider) ProvideApiControllers(cache *database.Cache, FollowConnector *api_connector.FollowerApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) []api.Controller {
 	return []api.Controller{
-		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(cache, followerConnector, readmodelsConnector))),
+		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(cache, FollowConnector, readmodelsConnector))),
 	}
 }

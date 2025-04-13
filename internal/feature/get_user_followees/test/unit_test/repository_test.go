@@ -15,15 +15,15 @@ import (
 
 var cacheClient *mock_database.MockCacheClient
 var repository *get_user_followees.GetUserFolloweesRepository
-var followeeConnector *mock_get_user_followees.MockfolloweeConnector
+var followConnector *mock_get_user_followees.MockfollowConnector
 var readmodelsConnector *mock_get_user_followees.MockreadmodelsConnector
 
 func setUpRepository(t *testing.T) {
 	setUp(t)
 	cacheClient = mock_database.NewMockCacheClient(ctrl)
-	followeeConnector = mock_get_user_followees.NewMockfolloweeConnector(ctrl)
+	followConnector = mock_get_user_followees.NewMockfollowConnector(ctrl)
 	readmodelsConnector = mock_get_user_followees.NewMockreadmodelsConnector(ctrl)
-	repository = get_user_followees.NewGetUserFolloweesRepository(database.NewCache(cacheClient), followeeConnector, readmodelsConnector)
+	repository = get_user_followees.NewGetUserFolloweesRepository(database.NewCache(cacheClient), followConnector, readmodelsConnector)
 }
 
 func TestGetUserFolloweesFromRepository_WhenApiConnectorReturnsSuccess(t *testing.T) {
@@ -48,7 +48,7 @@ func TestGetUserFolloweesFromRepository_WhenApiConnectorReturnsSuccess(t *testin
 		},
 	}
 	cacheClient.EXPECT().GetUserFollowees(username, lastFolloweeId, limit).Return([]model.Followee{}, "", false)
-	followeeConnector.EXPECT().GetUserFolloweeIds(username, lastFolloweeId, limit).Return(expectedFolloweeIds, expectedLastFolloweeId, nil)
+	followConnector.EXPECT().GetUserFolloweeIds(username, lastFolloweeId, limit).Return(expectedFolloweeIds, expectedLastFolloweeId, nil)
 	readmodelsConnector.EXPECT().GetFolloweesMetadata(expectedFolloweeIds).Return(expectedFollowees, nil)
 	cacheClient.EXPECT().SetUserFollowees(username, lastFolloweeId, limit, expectedFollowees)
 
@@ -88,13 +88,13 @@ func TestGetUserFolloweesFromRepository_WhenCacheReturnsSuccess(t *testing.T) {
 	assert.Equal(t, lastFolloweeId, expectedLastFolloweeId)
 }
 
-func TestErrorOnGetUserFolloweesFromRepository_WhenFolloweeConnectorFails(t *testing.T) {
+func TestErrorOnGetUserFolloweesFromRepository_WhenFollowConnectorFails(t *testing.T) {
 	setUpRepository(t)
 	username := "usernameA"
 	lastFolloweeId := "followee4"
 	limit := 4
 	cacheClient.EXPECT().GetUserFollowees(username, lastFolloweeId, limit).Return([]model.Followee{}, "", false)
-	followeeConnector.EXPECT().GetUserFolloweeIds(username, lastFolloweeId, limit).Return([]string{}, "", errors.New("some error"))
+	followConnector.EXPECT().GetUserFolloweeIds(username, lastFolloweeId, limit).Return([]string{}, "", errors.New("some error"))
 
 	followees, lastFolloweeId, err := repository.GetUserFollowees(username, lastFolloweeId, limit)
 
@@ -111,7 +111,7 @@ func TestErrorOnGetUserFolloweesFromRepository_WhenReadmodelsConnectorFails(t *t
 	expectedFolloweeIds := []string{"followee5", "followee6", "followee7"}
 	expectedLastFolloweeId := "followee4"
 	cacheClient.EXPECT().GetUserFollowees(username, lastFolloweeId, limit).Return([]model.Followee{}, "", false)
-	followeeConnector.EXPECT().GetUserFolloweeIds(username, lastFolloweeId, limit).Return(expectedFolloweeIds, expectedLastFolloweeId, nil)
+	followConnector.EXPECT().GetUserFolloweeIds(username, lastFolloweeId, limit).Return(expectedFolloweeIds, expectedLastFolloweeId, nil)
 	readmodelsConnector.EXPECT().GetFolloweesMetadata(expectedFolloweeIds).Return([]model.Followee{}, errors.New("some error"))
 
 	followees, lastFolloweeId, err := repository.GetUserFollowees(username, lastFolloweeId, limit)
