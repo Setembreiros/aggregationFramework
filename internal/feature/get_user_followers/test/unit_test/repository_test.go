@@ -44,7 +44,7 @@ func TestGetUserFollowersFromRepository_WhenApiConnectorReturnsSuccess(t *testin
 		},
 	}
 	followerConnector.EXPECT().GetUserFollowerIds(username, lastFollowerId, limit).Return(expectedFollowerIds, expectedLastFollowerId, nil)
-	readmodelsConnector.EXPECT().GetFollowerMetadatas(expectedFollowerIds).Return(expectedFollowers, nil)
+	readmodelsConnector.EXPECT().GetFollowersMetadata(expectedFollowerIds).Return(expectedFollowers, nil)
 
 	followers, lastFollowerId, err := repository.GetUserFollowers(username, lastFollowerId, limit)
 
@@ -75,7 +75,7 @@ func TestErrorOnGetUserFollowersFromRepository_WhenReadmodelsConnectorFails(t *t
 	expectedFollowerIds := []string{"follower5", "follower6", "follower7"}
 	expectedLastFollowerId := "follower4"
 	followerConnector.EXPECT().GetUserFollowerIds(username, lastFollowerId, limit).Return(expectedFollowerIds, expectedLastFollowerId, nil)
-	readmodelsConnector.EXPECT().GetFollowerMetadatas(expectedFollowerIds).Return([]model.Follower{}, errors.New("some error"))
+	readmodelsConnector.EXPECT().GetFollowersMetadata(expectedFollowerIds).Return([]model.Follower{}, errors.New("some error"))
 
 	followers, lastFollowerId, err := repository.GetUserFollowers(username, lastFollowerId, limit)
 

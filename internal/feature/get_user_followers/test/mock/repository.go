@@ -73,17 +73,17 @@ func (m *MockreadmodelsConnector) EXPECT() *MockreadmodelsConnectorMockRecorder 
 	return m.recorder
 }
 
-// GetFollowerMetadatas mocks base method.
-func (m *MockreadmodelsConnector) GetFollowerMetadatas(username []string) ([]model.Follower, error) {
+// GetFollowersMetadata mocks base method.
+func (m *MockreadmodelsConnector) GetFollowersMetadata(username []string) ([]model.Follower, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFollowerMetadatas", username)
+	ret := m.ctrl.Call(m, "GetFollowersMetadata", username)
 	ret0, _ := ret[0].([]model.Follower)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetFollowerMetadatas indicates an expected call of GetFollowerMetadatas.
-func (mr *MockreadmodelsConnectorMockRecorder) GetFollowerMetadatas(username interface{}) *gomock.Call {
+// GetFollowersMetadata indicates an expected call of GetFollowersMetadata.
+func (mr *MockreadmodelsConnectorMockRecorder) GetFollowersMetadata(username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFollowerMetadatas", reflect.TypeOf((*MockreadmodelsConnector)(nil).GetFollowerMetadatas), username)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFollowersMetadata", reflect.TypeOf((*MockreadmodelsConnector)(nil).GetFollowersMetadata), username)
 }

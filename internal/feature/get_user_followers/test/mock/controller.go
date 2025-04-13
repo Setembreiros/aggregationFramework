@@ -5,6 +5,7 @@
 package mock_get_user_followers
 
 import (
+	model "aggregationframework/internal/model/domain"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,10 +35,10 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // GetUserFollowers mocks base method.
-func (m *MockService) GetUserFollowers(username, lastPostId string, limit int) ([]string, string, error) {
+func (m *MockService) GetUserFollowers(username, lastPostId string, limit int) ([]model.Follower, string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserFollowers", username, lastPostId, limit)
-	ret0, _ := ret[0].([]string)
+	ret0, _ := ret[0].([]model.Follower)
 	ret1, _ := ret[1].(string)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2

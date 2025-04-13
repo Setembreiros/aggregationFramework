@@ -29,7 +29,7 @@ func NewReadmodelsApiConnector(baseURL string, httpClient *http.Client, context 
 	}
 }
 
-func (c *ReadmodelsApiConnector) GetFollowerMetadatas(followerIds []string) ([]model.Follower, error) {
+func (c *ReadmodelsApiConnector) GetFollowersMetadata(followerIds []string) ([]model.Follower, error) {
 	if len(followerIds) == 0 {
 		return []model.Follower{}, nil
 	}

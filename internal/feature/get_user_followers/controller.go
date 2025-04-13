@@ -4,6 +4,8 @@ import (
 	"aggregationframework/internal/api"
 	"strconv"
 
+	model "aggregationframework/internal/model/domain"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 )
@@ -15,12 +17,12 @@ type GetUserFollowersController struct {
 }
 
 type Service interface {
-	GetUserFollowers(username string, lastPostId string, limit int) ([]string, string, error)
+	GetUserFollowers(username string, lastPostId string, limit int) ([]model.Follower, string, error)
 }
 
 type GetUserFollowersResponse struct {
-	Followers      []string `json:"followers"`
-	LastFollowerId string   `json:"lastFollowerId"`
+	Followers      []model.Follower `json:"followers"`
+	LastFollowerId string           `json:"lastFollowerId"`
 }
 
 func NewGetUserFollowersController(service Service) *GetUserFollowersController {
@@ -30,7 +32,7 @@ func NewGetUserFollowersController(service Service) *GetUserFollowersController 
 }
 
 func (controller *GetUserFollowersController) Routes(routerGroup *gin.RouterGroup) {
-	routerGroup.GET("/followers", controller.GetUserFollowers)
+	routerGroup.GET("/followers/:username", controller.GetUserFollowers)
 }
 
 func (controller *GetUserFollowersController) GetUserFollowers(c *gin.Context) {
@@ -53,7 +55,7 @@ func (controller *GetUserFollowersController) GetUserFollowers(c *gin.Context) {
 }
 
 func getQueryParameters(c *gin.Context) (string, string, int) {
-	username := c.Query("username")
+	username := c.Param("username")
 	if username == "" {
 		api.SendBadRequest(c, "Missing username parameter")
 		return "", "", 0

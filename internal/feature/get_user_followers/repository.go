@@ -9,7 +9,7 @@ type followerConnector interface {
 }
 
 type readmodelsConnector interface {
-	GetFollowerMetadatas(username []string) ([]model.Follower, error)
+	GetFollowersMetadata(username []string) ([]model.Follower, error)
 }
 
 type GetUserFollowersRepository struct {
@@ -30,7 +30,7 @@ func (r *GetUserFollowersRepository) GetUserFollowers(username string, lastFollo
 		return []model.Follower{}, "", err
 	}
 
-	followers, err := r.readmodelsConnector.GetFollowerMetadatas(followerIds)
+	followers, err := r.readmodelsConnector.GetFollowersMetadata(followerIds)
 	if err != nil {
 		return []model.Follower{}, "", err
 	}
