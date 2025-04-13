@@ -5,6 +5,7 @@ import (
 	dbInfra "aggregationframework/infrastructure/database"
 	"aggregationframework/internal/api"
 	database "aggregationframework/internal/db"
+	"aggregationframework/internal/feature/get_user_followees"
 	"aggregationframework/internal/feature/get_user_followers"
 	"context"
 	"net"
@@ -42,9 +43,9 @@ func (p *Provider) ProvideHttpClient() *http.Client {
 	}
 }
 
-func (p *Provider) ProvideFollowerApiConnector(httpClient *http.Client, context context.Context) *api_connector.FollowerApiConnector {
+func (p *Provider) ProvideFollowApiConnector(httpClient *http.Client, context context.Context) *api_connector.FollowApiConnector {
 	baseURL := "http://localhost:7777/" + p.env + "/followservice/"
-	return api_connector.NewFollowerApiConnector(baseURL, httpClient, context)
+	return api_connector.NewFollowApiConnector(baseURL, httpClient, context)
 }
 
 func (p *Provider) ProvideReadmodelsApiConnector(httpClient *http.Client, context context.Context) *api_connector.ReadmodelsApiConnector {
@@ -52,12 +53,13 @@ func (p *Provider) ProvideReadmodelsApiConnector(httpClient *http.Client, contex
 	return api_connector.NewReadmodelsApiConnector(baseURL, httpClient, context)
 }
 
-func (p *Provider) ProvideApiEndpoint(cache *database.Cache, FollowConnector *api_connector.FollowerApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) *api.Api {
-	return api.NewApiEndpoint(p.env, p.ProvideApiControllers(cache, FollowConnector, readmodelsConnector))
+func (p *Provider) ProvideApiEndpoint(cache *database.Cache, followConnector *api_connector.FollowApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) *api.Api {
+	return api.NewApiEndpoint(p.env, p.ProvideApiControllers(cache, followConnector, readmodelsConnector))
 }
 
-func (p *Provider) ProvideApiControllers(cache *database.Cache, FollowConnector *api_connector.FollowerApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) []api.Controller {
+func (p *Provider) ProvideApiControllers(cache *database.Cache, followConnector *api_connector.FollowApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) []api.Controller {
 	return []api.Controller{
-		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(cache, FollowConnector, readmodelsConnector))),
+		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(cache, followConnector, readmodelsConnector))),
+		get_user_followees.NewGetUserFolloweesController(get_user_followees.NewGetUserFolloweesService(get_user_followees.NewGetUserFolloweesRepository(cache, followConnector, readmodelsConnector))),
 	}
 }

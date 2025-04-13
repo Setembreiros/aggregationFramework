@@ -30,7 +30,7 @@ func (app *App) Startup() {
 	provider := provider.NewProvider(app.Env)
 	cache := provider.ProvideCache(app.Ctx)
 	httpClient := provider.ProvideHttpClient()
-	FollowConnector := provider.ProvideFollowerApiConnector(httpClient, app.Ctx)
+	FollowConnector := provider.ProvideFollowApiConnector(httpClient, app.Ctx)
 	readmodelsConnector := provider.ProvideReadmodelsApiConnector(httpClient, app.Ctx)
 	apiEnpoint := provider.ProvideApiEndpoint(cache, FollowConnector, readmodelsConnector)
 
