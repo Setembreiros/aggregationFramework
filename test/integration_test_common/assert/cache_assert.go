@@ -12,5 +12,5 @@ func AssertCachedUserFollowersExists(t *testing.T, db *database.Cache, username,
 	cachedFollowers, cachedLastFollowerId, found := db.Client.GetUserFollowers(username, lastFollowerId, limit)
 	assert.Equal(t, true, found)
 	assert.Equal(t, expectedFollowers, cachedFollowers)
-	assert.Equal(t, expectedFollowers[len(expectedFollowers)-1], cachedLastFollowerId)
+	assert.Equal(t, expectedFollowers[len(expectedFollowers)-1].Username, cachedLastFollowerId)
 }
