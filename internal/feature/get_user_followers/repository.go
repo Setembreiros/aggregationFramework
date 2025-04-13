@@ -1,6 +1,9 @@
 package get_user_followers
 
-import model "aggregationframework/internal/model/domain"
+import (
+	database "aggregationframework/internal/db"
+	model "aggregationframework/internal/model/domain"
+)
 
 //go:generate mockgen -source=repository.go -destination=test/mock/repository.go
 
@@ -13,27 +16,36 @@ type readmodelsConnector interface {
 }
 
 type GetUserFollowersRepository struct {
+	cache               *database.Cache
 	followerConnector   followerConnector
 	readmodelsConnector readmodelsConnector
 }
 
-func NewGetUserFollowersRepository(followerConnector followerConnector, readmodelsConnector readmodelsConnector) *GetUserFollowersRepository {
+func NewGetUserFollowersRepository(cache *database.Cache, followerConnector followerConnector, readmodelsConnector readmodelsConnector) *GetUserFollowersRepository {
 	return &GetUserFollowersRepository{
+		cache:               cache,
 		followerConnector:   followerConnector,
 		readmodelsConnector: readmodelsConnector,
 	}
 }
 
 func (r *GetUserFollowersRepository) GetUserFollowers(username string, lastFollowerId string, limit int) ([]model.Follower, string, error) {
+	followers, newLastFollowerId, found := r.cache.Client.GetUserFollowers(username, lastFollowerId, limit)
+	if found {
+		return followers, newLastFollowerId, nil
+	}
+
 	followerIds, newLastFollowerId, err := r.followerConnector.GetUserFollowerIds(username, lastFollowerId, limit)
 	if err != nil {
 		return []model.Follower{}, "", err
 	}
 
-	followers, err := r.readmodelsConnector.GetFollowersMetadata(followerIds)
+	followers, err = r.readmodelsConnector.GetFollowersMetadata(followerIds)
 	if err != nil {
 		return []model.Follower{}, "", err
 	}
+
+	r.cache.Client.SetUserFollowers(username, lastFollowerId, limit, followers)
 
 	return followers, newLastFollowerId, nil
 }

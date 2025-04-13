@@ -2,7 +2,9 @@ package provider
 
 import (
 	"aggregationframework/infrastructure/api_connector"
+	dbInfra "aggregationframework/infrastructure/database"
 	"aggregationframework/internal/api"
+	database "aggregationframework/internal/db"
 	"aggregationframework/internal/feature/get_user_followers"
 	"context"
 	"net"
@@ -18,6 +20,10 @@ func NewProvider(env string) *Provider {
 	return &Provider{
 		env: env,
 	}
+}
+
+func (p *Provider) ProvideCache(ctx context.Context) *database.Cache {
+	return database.NewCache(dbInfra.NewRedisClient("localhost:6379", "", ctx))
 }
 
 func (p *Provider) ProvideHttpClient() *http.Client {
@@ -46,12 +52,12 @@ func (p *Provider) ProvideReadmodelsApiConnector(httpClient *http.Client, contex
 	return api_connector.NewReadmodelsApiConnector(baseURL, httpClient, context)
 }
 
-func (p *Provider) ProvideApiEndpoint(followerConnector *api_connector.FollowerApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) *api.Api {
-	return api.NewApiEndpoint(p.env, p.ProvideApiControllers(followerConnector, readmodelsConnector))
+func (p *Provider) ProvideApiEndpoint(cache *database.Cache, followerConnector *api_connector.FollowerApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) *api.Api {
+	return api.NewApiEndpoint(p.env, p.ProvideApiControllers(cache, followerConnector, readmodelsConnector))
 }
 
-func (p *Provider) ProvideApiControllers(followerConnector *api_connector.FollowerApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) []api.Controller {
+func (p *Provider) ProvideApiControllers(cache *database.Cache, followerConnector *api_connector.FollowerApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) []api.Controller {
 	return []api.Controller{
-		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(followerConnector, readmodelsConnector))),
+		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(cache, followerConnector, readmodelsConnector))),
 	}
 }
