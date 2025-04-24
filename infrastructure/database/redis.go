@@ -22,6 +22,11 @@ type FollowersData struct {
 	LastFollowerId string           `json:"lastFollowerId"`
 }
 
+type FolloweesData struct {
+	Followees      []model.Followee `json:"followees"`
+	LastFolloweeId string           `json:"lastFolloweeId"`
+}
+
 func NewRedisClient(cacheUri, cachePassword string, ctx context.Context) *RedisCacheClient {
 	redisConfig := &redis.Options{
 		Addr:     cacheUri,
@@ -65,7 +70,7 @@ func (c *RedisCacheClient) Clean() {
 }
 
 func (c *RedisCacheClient) SetUserFollowers(username string, lastFollowerId string, limit int, followers []model.Follower) {
-	cacheKey := c.generateCacheKey(username, lastFollowerId, limit)
+	cacheKey := generateFollowersCacheKey(username, lastFollowerId, limit)
 
 	newLastFollowerId := ""
 	if len(followers) > 0 {
@@ -90,7 +95,7 @@ func (c *RedisCacheClient) SetUserFollowers(username string, lastFollowerId stri
 }
 
 func (c *RedisCacheClient) GetUserFollowers(username string, lastFollowerId string, limit int) ([]model.Follower, string, bool) {
-	cacheKey := c.generateCacheKey(username, lastFollowerId, limit)
+	cacheKey := generateFollowersCacheKey(username, lastFollowerId, limit)
 
 	jsonData, err := c.client.Get(c.ctx, cacheKey).Bytes()
 	if err != nil {
@@ -114,6 +119,60 @@ func (c *RedisCacheClient) GetUserFollowers(username string, lastFollowerId stri
 	return data.Followers, data.LastFollowerId, true
 }
 
-func (c *RedisCacheClient) generateCacheKey(username string, lastFollowerId string, limit int) string {
+func (c *RedisCacheClient) SetUserFollowees(username string, lastFolloweeId string, limit int, followees []model.Followee) {
+	cacheKey := generateFolloweesCacheKey(username, lastFolloweeId, limit)
+
+	newLastFolloweeId := ""
+	if len(followees) > 0 {
+		newLastFolloweeId = followees[len(followees)-1].Username
+	}
+
+	data := FolloweesData{
+		Followees:      followees,
+		LastFolloweeId: newLastFolloweeId,
+	}
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Warn().Stack().Err(err).Msg("Failed to serialize followees data")
+		return
+	}
+
+	err = c.client.Set(c.ctx, cacheKey, jsonData, 5*time.Minute).Err()
+	if err != nil {
+		log.Warn().Stack().Err(err).Msg("Failed to set followees in cache")
+	}
+}
+
+func (c *RedisCacheClient) GetUserFollowees(username string, lastFolloweeId string, limit int) ([]model.Followee, string, bool) {
+	cacheKey := generateFolloweesCacheKey(username, lastFolloweeId, limit)
+
+	jsonData, err := c.client.Get(c.ctx, cacheKey).Bytes()
+	if err != nil {
+		if err == redis.Nil {
+			return []model.Followee{}, "", false
+		}
+
+		log.Warn().Stack().Err(err).Msg("Failed to retrieve followees from cache")
+		return []model.Followee{}, "", false
+	}
+
+	var data FolloweesData
+	err = json.Unmarshal(jsonData, &data)
+	if err != nil {
+		log.Warn().Stack().Err(err).Msg("Failed to deserialize followees data")
+		return []model.Followee{}, "", false
+	}
+
+	log.Info().Msgf("Data retrieve from cache for key %s", cacheKey)
+
+	return data.Followees, data.LastFolloweeId, true
+}
+
+func generateFollowersCacheKey(username string, lastFollowerId string, limit int) string {
 	return fmt.Sprintf("followers:%s:%s:%d", username, lastFollowerId, limit)
+}
+
+func generateFolloweesCacheKey(username string, lastFolloweeId string, limit int) string {
+	return fmt.Sprintf("followees:%s:%s:%d", username, lastFolloweeId, limit)
 }

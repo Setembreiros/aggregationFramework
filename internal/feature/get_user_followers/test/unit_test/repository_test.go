@@ -15,15 +15,15 @@ import (
 
 var cacheClient *mock_database.MockCacheClient
 var repository *get_user_followers.GetUserFollowersRepository
-var followerConnector *mock_get_user_followers.MockfollowerConnector
+var FollowConnector *mock_get_user_followers.MockFollowConnector
 var readmodelsConnector *mock_get_user_followers.MockreadmodelsConnector
 
 func setUpRepository(t *testing.T) {
 	setUp(t)
 	cacheClient = mock_database.NewMockCacheClient(ctrl)
-	followerConnector = mock_get_user_followers.NewMockfollowerConnector(ctrl)
+	FollowConnector = mock_get_user_followers.NewMockFollowConnector(ctrl)
 	readmodelsConnector = mock_get_user_followers.NewMockreadmodelsConnector(ctrl)
-	repository = get_user_followers.NewGetUserFollowersRepository(database.NewCache(cacheClient), followerConnector, readmodelsConnector)
+	repository = get_user_followers.NewGetUserFollowersRepository(database.NewCache(cacheClient), FollowConnector, readmodelsConnector)
 }
 
 func TestGetUserFollowersFromRepository_WhenApiConnectorReturnsSuccess(t *testing.T) {
@@ -48,7 +48,7 @@ func TestGetUserFollowersFromRepository_WhenApiConnectorReturnsSuccess(t *testin
 		},
 	}
 	cacheClient.EXPECT().GetUserFollowers(username, lastFollowerId, limit).Return([]model.Follower{}, "", false)
-	followerConnector.EXPECT().GetUserFollowerIds(username, lastFollowerId, limit).Return(expectedFollowerIds, expectedLastFollowerId, nil)
+	FollowConnector.EXPECT().GetUserFollowerIds(username, lastFollowerId, limit).Return(expectedFollowerIds, expectedLastFollowerId, nil)
 	readmodelsConnector.EXPECT().GetFollowersMetadata(expectedFollowerIds).Return(expectedFollowers, nil)
 	cacheClient.EXPECT().SetUserFollowers(username, lastFollowerId, limit, expectedFollowers)
 
@@ -88,13 +88,13 @@ func TestGetUserFollowersFromRepository_WhenCacheReturnsSuccess(t *testing.T) {
 	assert.Equal(t, lastFollowerId, expectedLastFollowerId)
 }
 
-func TestErrorOnGetUserFollowersFromRepository_WhenFollowerConnectorFails(t *testing.T) {
+func TestErrorOnGetUserFollowersFromRepository_WhenFollowConnectorFails(t *testing.T) {
 	setUpRepository(t)
 	username := "usernameA"
 	lastFollowerId := "follower4"
 	limit := 4
 	cacheClient.EXPECT().GetUserFollowers(username, lastFollowerId, limit).Return([]model.Follower{}, "", false)
-	followerConnector.EXPECT().GetUserFollowerIds(username, lastFollowerId, limit).Return([]string{}, "", errors.New("some error"))
+	FollowConnector.EXPECT().GetUserFollowerIds(username, lastFollowerId, limit).Return([]string{}, "", errors.New("some error"))
 
 	followers, lastFollowerId, err := repository.GetUserFollowers(username, lastFollowerId, limit)
 
@@ -111,7 +111,7 @@ func TestErrorOnGetUserFollowersFromRepository_WhenReadmodelsConnectorFails(t *t
 	expectedFollowerIds := []string{"follower5", "follower6", "follower7"}
 	expectedLastFollowerId := "follower4"
 	cacheClient.EXPECT().GetUserFollowers(username, lastFollowerId, limit).Return([]model.Follower{}, "", false)
-	followerConnector.EXPECT().GetUserFollowerIds(username, lastFollowerId, limit).Return(expectedFollowerIds, expectedLastFollowerId, nil)
+	FollowConnector.EXPECT().GetUserFollowerIds(username, lastFollowerId, limit).Return(expectedFollowerIds, expectedLastFollowerId, nil)
 	readmodelsConnector.EXPECT().GetFollowersMetadata(expectedFollowerIds).Return([]model.Follower{}, errors.New("some error"))
 
 	followers, lastFollowerId, err := repository.GetUserFollowers(username, lastFollowerId, limit)

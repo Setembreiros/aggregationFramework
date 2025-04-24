@@ -46,6 +46,22 @@ func (mr *MockCacheClientMockRecorder) Clean() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clean", reflect.TypeOf((*MockCacheClient)(nil).Clean))
 }
 
+// GetUserFollowees mocks base method.
+func (m *MockCacheClient) GetUserFollowees(username, lastFolloweeId string, limit int) ([]model.Followee, string, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserFollowees", username, lastFolloweeId, limit)
+	ret0, _ := ret[0].([]model.Followee)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(bool)
+	return ret0, ret1, ret2
+}
+
+// GetUserFollowees indicates an expected call of GetUserFollowees.
+func (mr *MockCacheClientMockRecorder) GetUserFollowees(username, lastFolloweeId, limit interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFollowees", reflect.TypeOf((*MockCacheClient)(nil).GetUserFollowees), username, lastFolloweeId, limit)
+}
+
 // GetUserFollowers mocks base method.
 func (m *MockCacheClient) GetUserFollowers(username, lastFollowerId string, limit int) ([]model.Follower, string, bool) {
 	m.ctrl.T.Helper()
@@ -60,6 +76,18 @@ func (m *MockCacheClient) GetUserFollowers(username, lastFollowerId string, limi
 func (mr *MockCacheClientMockRecorder) GetUserFollowers(username, lastFollowerId, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFollowers", reflect.TypeOf((*MockCacheClient)(nil).GetUserFollowers), username, lastFollowerId, limit)
+}
+
+// SetUserFollowees mocks base method.
+func (m *MockCacheClient) SetUserFollowees(username, lastFolloweeId string, limit int, followees []model.Followee) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetUserFollowees", username, lastFolloweeId, limit, followees)
+}
+
+// SetUserFollowees indicates an expected call of SetUserFollowees.
+func (mr *MockCacheClientMockRecorder) SetUserFollowees(username, lastFolloweeId, limit, followees interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetUserFollowees", reflect.TypeOf((*MockCacheClient)(nil).SetUserFollowees), username, lastFolloweeId, limit, followees)
 }
 
 // SetUserFollowers mocks base method.

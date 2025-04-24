@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type FollowerApiConnector struct {
+type FollowApiConnector struct {
 	*ApiConnector
 }
 
@@ -18,8 +18,13 @@ type FollowerIdsContent struct {
 	LastFollowerID string   `json:"lastFollowerId"`
 }
 
-func NewFollowerApiConnector(baseURL string, httpClient *http.Client, context context.Context) *FollowerApiConnector {
-	return &FollowerApiConnector{
+type FolloweeIdsContent struct {
+	Followees      []string `json:"followees"`
+	LastFolloweeID string   `json:"lastFolloweeId"`
+}
+
+func NewFollowApiConnector(baseURL string, httpClient *http.Client, context context.Context) *FollowApiConnector {
+	return &FollowApiConnector{
 		ApiConnector: &ApiConnector{
 			baseURL:    baseURL,
 			httpClient: httpClient,
@@ -28,7 +33,7 @@ func NewFollowerApiConnector(baseURL string, httpClient *http.Client, context co
 	}
 }
 
-func (c *FollowerApiConnector) GetUserFollowerIds(username, lastFollowerId string, limit int) ([]string, string, error) {
+func (c *FollowApiConnector) GetUserFollowerIds(username, lastFollowerId string, limit int) ([]string, string, error) {
 	uri := fmt.Sprintf("followers/%s?limit=%d", username, limit)
 	if lastFollowerId != "" {
 		uri += fmt.Sprintf("&lastFollowerId=%s", lastFollowerId)
@@ -63,4 +68,41 @@ func deserializeFollowerIdsContent(content any) (*FollowerIdsContent, error) {
 	}
 
 	return &followerIdsContent, nil
+}
+
+func (c *FollowApiConnector) GetUserFolloweeIds(username, lastFolloweeId string, limit int) ([]string, string, error) {
+	uri := fmt.Sprintf("followees/%s?limit=%d", username, limit)
+	if lastFolloweeId != "" {
+		uri += fmt.Sprintf("&lastFolloweeId=%s", lastFolloweeId)
+	}
+
+	result, err := c.SendApiRequest(http.MethodGet, uri)
+	if err != nil {
+		return []string{}, "", err
+	}
+
+	followeeIdsContent, err := deserializeFolloweeIdsContent(result.Content)
+	if err != nil {
+		return nil, "", NewContentDeserializationError()
+	}
+
+	return followeeIdsContent.Followees, followeeIdsContent.LastFolloweeID, nil
+}
+
+func deserializeFolloweeIdsContent(content any) (*FolloweeIdsContent, error) {
+	jsonBytes, err := json.Marshal(content)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("Failed to serialize followeeIds content")
+		return nil, NewContentDeserializationError()
+	}
+
+	var followeeIdsContent FolloweeIdsContent
+
+	err = json.Unmarshal(jsonBytes, &followeeIdsContent)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("Failed to deserialize followeeIds content")
+		return nil, NewContentDeserializationError()
+	}
+
+	return &followeeIdsContent, nil
 }

@@ -16,3 +16,7 @@ func CreateTestCache(t *testing.T, ctx context.Context) *database.Cache {
 func AddCachedFollowersToCache(t *testing.T, cache *database.Cache, username, lastFollowerId string, limit int, followers []model.Follower) {
 	cache.Client.SetUserFollowers(username, lastFollowerId, limit, followers)
 }
+
+func AddCachedFolloweesToCache(t *testing.T, cache *database.Cache, username, lastFolloweeId string, limit int, followees []model.Followee) {
+	cache.Client.SetUserFollowees(username, lastFolloweeId, limit, followees)
+}

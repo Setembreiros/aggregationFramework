@@ -11,31 +11,31 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockfollowerConnector is a mock of followerConnector interface.
-type MockfollowerConnector struct {
+// MockFollowConnector is a mock of FollowConnector interface.
+type MockFollowConnector struct {
 	ctrl     *gomock.Controller
-	recorder *MockfollowerConnectorMockRecorder
+	recorder *MockFollowConnectorMockRecorder
 }
 
-// MockfollowerConnectorMockRecorder is the mock recorder for MockfollowerConnector.
-type MockfollowerConnectorMockRecorder struct {
-	mock *MockfollowerConnector
+// MockFollowConnectorMockRecorder is the mock recorder for MockFollowConnector.
+type MockFollowConnectorMockRecorder struct {
+	mock *MockFollowConnector
 }
 
-// NewMockfollowerConnector creates a new mock instance.
-func NewMockfollowerConnector(ctrl *gomock.Controller) *MockfollowerConnector {
-	mock := &MockfollowerConnector{ctrl: ctrl}
-	mock.recorder = &MockfollowerConnectorMockRecorder{mock}
+// NewMockFollowConnector creates a new mock instance.
+func NewMockFollowConnector(ctrl *gomock.Controller) *MockFollowConnector {
+	mock := &MockFollowConnector{ctrl: ctrl}
+	mock.recorder = &MockFollowConnectorMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockfollowerConnector) EXPECT() *MockfollowerConnectorMockRecorder {
+func (m *MockFollowConnector) EXPECT() *MockFollowConnectorMockRecorder {
 	return m.recorder
 }
 
 // GetUserFollowerIds mocks base method.
-func (m *MockfollowerConnector) GetUserFollowerIds(username, lastFollowerId string, limit int) ([]string, string, error) {
+func (m *MockFollowConnector) GetUserFollowerIds(username, lastFollowerId string, limit int) ([]string, string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserFollowerIds", username, lastFollowerId, limit)
 	ret0, _ := ret[0].([]string)
@@ -45,9 +45,9 @@ func (m *MockfollowerConnector) GetUserFollowerIds(username, lastFollowerId stri
 }
 
 // GetUserFollowerIds indicates an expected call of GetUserFollowerIds.
-func (mr *MockfollowerConnectorMockRecorder) GetUserFollowerIds(username, lastFollowerId, limit interface{}) *gomock.Call {
+func (mr *MockFollowConnectorMockRecorder) GetUserFollowerIds(username, lastFollowerId, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFollowerIds", reflect.TypeOf((*MockfollowerConnector)(nil).GetUserFollowerIds), username, lastFollowerId, limit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFollowerIds", reflect.TypeOf((*MockFollowConnector)(nil).GetUserFollowerIds), username, lastFollowerId, limit)
 }
 
 // MockreadmodelsConnector is a mock of readmodelsConnector interface.
