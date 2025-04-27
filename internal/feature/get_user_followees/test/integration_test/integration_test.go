@@ -1,11 +1,9 @@
 package integration_test_get_user_followees
 
 import (
-	database "aggregationframework/internal/db"
 	"aggregationframework/internal/feature/get_user_followees"
 	mock_get_user_followees "aggregationframework/internal/feature/get_user_followees/test/mock"
 	model "aggregationframework/internal/model/domain"
-	integration_test_arrange "aggregationframework/test/integration_test_common/arrange"
 	integration_test_assert "aggregationframework/test/integration_test_common/assert"
 	"net/http"
 	"net/http/httptest"
@@ -17,7 +15,6 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-var cache *database.Cache
 var controller *get_user_followees.GetUserFolloweesController
 var apiResponse *httptest.ResponseRecorder
 var ginContext *gin.Context
@@ -34,19 +31,13 @@ func setUp(t *testing.T) {
 	readmodelsConnector = mock_get_user_followees.NewMockreadmodelsConnector(ctrl)
 
 	// Real infrastructure and services
-	cache = integration_test_arrange.CreateTestCache(t, ginContext)
-	repository := get_user_followees.NewGetUserFolloweesRepository(cache, FollowConnector, readmodelsConnector)
+	repository := get_user_followees.NewGetUserFolloweesRepository(FollowConnector, readmodelsConnector)
 	service := get_user_followees.NewGetUserFolloweesService(repository)
 	controller = get_user_followees.NewGetUserFolloweesController(service)
 }
 
-func tearDown() {
-	cache.Client.Clean()
-}
-
 func TestGetUserFollowees_WhenApiConnectorReturnsSuccess(t *testing.T) {
 	setUp(t)
-	defer tearDown()
 	username := "username1"
 	lastFolloweeId := "username2"
 	limit := 4
@@ -99,62 +90,4 @@ func TestGetUserFollowees_WhenApiConnectorReturnsSuccess(t *testing.T) {
 	controller.GetUserFollowees(ginContext)
 
 	integration_test_assert.AssertSuccessResult(t, apiResponse, expectedBodyResponse)
-	integration_test_assert.AssertCachedUserFolloweesExists(t, cache, username, lastFolloweeId, limit, expectedFollowees)
-}
-
-func TestGetUserFollowees_WhenCacheReturnsSuccess(t *testing.T) {
-	setUp(t)
-	defer tearDown()
-	username := "username1"
-	lastFolloweeId := "username2"
-	limit := 4
-	populateCache(t, username, lastFolloweeId, limit)
-	ginContext.Request, _ = http.NewRequest("GET", "/followees", nil)
-	ginContext.Params = []gin.Param{{Key: "username", Value: username}}
-	u := url.Values{}
-	u.Add("lastFolloweeId", lastFolloweeId)
-	u.Add("limit", strconv.Itoa(limit))
-	ginContext.Request.URL.RawQuery = u.Encode()
-	expectedBodyResponse := `{
-		"error": false,
-		"message": "200 OK",
-		"content": {
-			"followees":[
-				{
-					"username": "followee5",
-					"fullname": "fullname5"
-				},
-				{
-					"username": "followee6",
-					"fullname": "fullname6"
-				},
-				{
-					"username": "followee7",
-					"fullname": "fullname7"
-				}
-			],
-			"lastFolloweeId":"followee7"
-		}
-	}`
-
-	controller.GetUserFollowees(ginContext)
-
-	integration_test_assert.AssertSuccessResult(t, apiResponse, expectedBodyResponse)
-}
-
-func populateCache(t *testing.T, followeeId, lastFolloweeId string, limit int) {
-	integration_test_arrange.AddCachedFolloweesToCache(t, cache, followeeId, lastFolloweeId, limit, []model.Followee{
-		{
-			Username: "followee5",
-			Fullname: "fullname5",
-		},
-		{
-			Username: "followee6",
-			Fullname: "fullname6",
-		},
-		{
-			Username: "followee7",
-			Fullname: "fullname7",
-		},
-	})
 }

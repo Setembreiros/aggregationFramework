@@ -28,11 +28,10 @@ func (app *App) Startup() {
 	log.Info().Msgf("Starting Aggregationframework service in [%s] enviroment...\n", app.Env)
 
 	provider := provider.NewProvider(app.Env)
-	cache := provider.ProvideCache(app.Ctx)
 	httpClient := provider.ProvideHttpClient()
 	FollowConnector := provider.ProvideFollowApiConnector(httpClient, app.Ctx)
 	readmodelsConnector := provider.ProvideReadmodelsApiConnector(httpClient, app.Ctx)
-	apiEnpoint := provider.ProvideApiEndpoint(cache, FollowConnector, readmodelsConnector)
+	apiEnpoint := provider.ProvideApiEndpoint(FollowConnector, readmodelsConnector)
 
 	app.runServerTasks(apiEnpoint)
 }
