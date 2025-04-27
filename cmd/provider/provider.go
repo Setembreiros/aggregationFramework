@@ -47,6 +47,10 @@ func (p *Provider) ProvideReadmodelsApiConnector(httpClient *http.Client, contex
 	return api_connector.NewReadmodelsApiConnector(baseURL, httpClient, context)
 }
 
+func (p *Provider) ProvideApiEndpoint(followConnector *api_connector.FollowApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) *api.Api {
+	return api.NewApiEndpoint(p.env, p.ProvideApiControllers(followConnector, readmodelsConnector))
+}
+
 func (p *Provider) ProvideApiControllers(followConnector *api_connector.FollowApiConnector, readmodelsConnector *api_connector.ReadmodelsApiConnector) []api.Controller {
 	return []api.Controller{
 		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(followConnector, readmodelsConnector))),
