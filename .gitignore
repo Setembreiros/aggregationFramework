@@ -8,7 +8,7 @@
 *.so
 *.dylib
 *.zip
-aggregationFamework
+aggregationFramework
 
 # Test binary, built with `go test -c`
 *.test
