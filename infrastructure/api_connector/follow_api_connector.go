@@ -90,7 +90,7 @@ func (c *FollowApiConnector) GetUserFolloweeIds(username, lastFolloweeId string,
 }
 
 func (c *FollowApiConnector) CheckIfRelationshipExists(followeeId, followerId string) (bool, error) {
-	uri := fmt.Sprintf("relationship/%s/%s", followeeId, followerId)
+	uri := fmt.Sprintf("relationship/exists?followerId=%s&followeeId=%s", followeeId, followerId)
 
 	result, err := c.SendApiRequest(http.MethodGet, uri)
 	if err != nil {
