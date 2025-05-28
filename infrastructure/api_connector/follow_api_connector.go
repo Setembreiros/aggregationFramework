@@ -89,6 +89,22 @@ func (c *FollowApiConnector) GetUserFolloweeIds(username, lastFolloweeId string,
 	return followeeIdsContent.Followees, followeeIdsContent.LastFolloweeID, nil
 }
 
+func (c *FollowApiConnector) CheckIfRelationshipExists(followeeId, followerId string) (bool, error) {
+	uri := fmt.Sprintf("relationship/%s/%s", followeeId, followerId)
+
+	result, err := c.SendApiRequest(http.MethodGet, uri)
+	if err != nil {
+		return false, err
+	}
+
+	exist, err := deserializeRelationshipExistsContent(result.Content)
+	if err != nil {
+		return false, err
+	}
+
+	return exist, nil
+}
+
 func deserializeFolloweeIdsContent(content any) (*FolloweeIdsContent, error) {
 	jsonBytes, err := json.Marshal(content)
 	if err != nil {
@@ -105,4 +121,22 @@ func deserializeFolloweeIdsContent(content any) (*FolloweeIdsContent, error) {
 	}
 
 	return &followeeIdsContent, nil
+}
+
+func deserializeRelationshipExistsContent(content any) (bool, error) {
+	jsonBytes, err := json.Marshal(content)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("Failed to serialize followeeIds content")
+		return false, NewContentDeserializationError()
+	}
+
+	var exist bool
+
+	err = json.Unmarshal(jsonBytes, &exist)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("Failed to deserialize followeeIds content")
+		return false, NewContentDeserializationError()
+	}
+
+	return exist, nil
 }

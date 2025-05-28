@@ -58,24 +58,6 @@ func (c *ReadmodelsApiConnector) GetFollowersMetadata(followerIds []string) ([]m
 	return followerMetadtaContent.Followers, nil
 }
 
-func deserializeFollowerMetadataContent(content any) (*FollowerMetadataContent, error) {
-	jsonBytes, err := json.Marshal(content)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("Failed to serialize follower metadata content")
-		return nil, NewContentDeserializationError()
-	}
-
-	var followerMetadtaContent FollowerMetadataContent
-
-	err = json.Unmarshal(jsonBytes, &followerMetadtaContent)
-	if err != nil {
-		log.Error().Stack().Err(err).Msg("Failed to deserialize follower metadata content")
-		return nil, NewContentDeserializationError()
-	}
-
-	return &followerMetadtaContent, nil
-}
-
 func (c *ReadmodelsApiConnector) GetFolloweesMetadata(followeeIds []string) ([]model.Followee, error) {
 	if len(followeeIds) == 0 {
 		return []model.Followee{}, nil
@@ -101,6 +83,40 @@ func (c *ReadmodelsApiConnector) GetFolloweesMetadata(followeeIds []string) ([]m
 	return followeeMetadtaContent.Followees, nil
 }
 
+func (c *ReadmodelsApiConnector) GetUserProfile(username string) (*model.UserProfile, error) {
+	uri := fmt.Sprintf("userprofile/%s", username)
+
+	result, err := c.SendApiRequest(http.MethodGet, uri)
+	if err != nil {
+		return &model.UserProfile{}, err
+	}
+
+	userprofile, err := deserializeUserProfileContent(result.Content)
+	if err != nil {
+		return nil, NewContentDeserializationError()
+	}
+
+	return userprofile, nil
+}
+
+func deserializeFollowerMetadataContent(content any) (*FollowerMetadataContent, error) {
+	jsonBytes, err := json.Marshal(content)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("Failed to serialize follower metadata content")
+		return nil, NewContentDeserializationError()
+	}
+
+	var followerMetadtaContent FollowerMetadataContent
+
+	err = json.Unmarshal(jsonBytes, &followerMetadtaContent)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("Failed to deserialize follower metadata content")
+		return nil, NewContentDeserializationError()
+	}
+
+	return &followerMetadtaContent, nil
+}
+
 func deserializeFolloweeMetadataContent(content any) (*FolloweeMetadataContent, error) {
 	jsonBytes, err := json.Marshal(content)
 	if err != nil {
@@ -117,4 +133,22 @@ func deserializeFolloweeMetadataContent(content any) (*FolloweeMetadataContent, 
 	}
 
 	return &followeeMetadtaContent, nil
+}
+
+func deserializeUserProfileContent(content any) (*model.UserProfile, error) {
+	jsonBytes, err := json.Marshal(content)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("Failed to serialize user profile content")
+		return nil, NewContentDeserializationError()
+	}
+
+	var userProfile model.UserProfile
+
+	err = json.Unmarshal(jsonBytes, &userProfile)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("Failed to deserialize user profile content")
+		return nil, NewContentDeserializationError()
+	}
+
+	return &userProfile, nil
 }

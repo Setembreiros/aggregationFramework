@@ -3,6 +3,7 @@ package provider
 import (
 	"aggregationframework/infrastructure/api_connector"
 	"aggregationframework/internal/api"
+	"aggregationframework/internal/feature/get_other_user_profile"
 	"aggregationframework/internal/feature/get_user_followees"
 	"aggregationframework/internal/feature/get_user_followers"
 	"context"
@@ -55,5 +56,6 @@ func (p *Provider) ProvideApiControllers(followConnector *api_connector.FollowAp
 	return []api.Controller{
 		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(followConnector, readmodelsConnector))),
 		get_user_followees.NewGetUserFolloweesController(get_user_followees.NewGetUserFolloweesService(get_user_followees.NewGetUserFolloweesRepository(followConnector, readmodelsConnector))),
+		get_other_user_profile.NewGetOtherUserProfileController(get_other_user_profile.NewGetOtherUserProfileService(get_other_user_profile.NewGetOtherUserProfileRepository(followConnector, readmodelsConnector))),
 	}
 }
