@@ -52,8 +52,8 @@ func (r *GetOtherUserProfileRepository) GetOtherUserProfile(username string, cur
 	return userProfile, nil
 }
 
-func (r *GetOtherUserProfileRepository) checkIfRelationshipExistsGoroutine(username string, currentUsername string, resultChan chan<- bool, errChan chan<- error) {
-	isFollowed, err := r.followConnector.CheckIfRelationshipExists(username, currentUsername)
+func (r *GetOtherUserProfileRepository) checkIfRelationshipExistsGoroutine(followeeId, followerId string, resultChan chan<- bool, errChan chan<- error) {
+	isFollowed, err := r.followConnector.CheckIfRelationshipExists(followeeId, followerId)
 	resultChan <- isFollowed
 	errChan <- err
 }

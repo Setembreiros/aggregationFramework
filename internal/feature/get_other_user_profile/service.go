@@ -29,5 +29,7 @@ func (s *GetOtherUserProfileService) GetOtherUserProfile(username string, curren
 		return userProfile, err
 	}
 
+	log.Info().Stack().Msgf("%s's profile successfully retrieve", username)
+
 	return userProfile, nil
 }
